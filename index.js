@@ -25,34 +25,39 @@ db.connect((err) =>{
     if (err){
         console.error('Error connecting to MySQL:' + err.stack);
         return;
-
-
     }
     console.log('Connection Succuessfully!');
 });
 
 
-app.get('/mahasiswa', (req, res) => {
-    const sql = 'SELECT * FROM mahasiswa';      
-    db.query(sql, (err, results) => {
-      if (err) {
-        console.error('Error executing query: ' + err.stack);
-        res.status(500).send('Error executing query');
-        return;
-      }
-      res.json(results);
+app.get('/api/users', (req, res) => {
+    db.query('SELECT * FROM mahasiswa', (err, results) => {
+        if (err) {
+            console.error('Error executing query: ' + err.stack);
+            res.status(500).send('Error fetching users');
+            return;
+        }
+        res.json(results);
     });
 });
 
-app.post('/mahasiswa', (req, res) => {
-    const { id, nama, nim, kelas, prodi } = req.body;
-    const sql = 'INSERT INTO mahasiswa (id, nama, nim, kelas, prodi) VALUES (?, ?, ?, ?, ?)';      
-    db.query(sql, [id, nama, nim, kelas, prodi], (err, results) => {
-      if (err) {
-        console.error('Error executing query: ' + err.stack);
-        res.status(500).send('Error executing query');
-        return;
-      } 
-      res.status(201).json({ id: results.insertid, nama, nim, kelas, prodi });
-    });
+app.post('/api/users', (req, res) => {
+    const { nama, nim, kelas, prodi } = req.body;
+
+    if (!nama || !nim || !kelas || !prodi) {
+        return res.status(400).json({ message: 'nama, nim, kelas, prodi wajib diisi' });
+    }
+
+    db.query(
+        'INSERT INTO mahasiswa (nama, nim, kelas, prodi) VALUES (?, ?, ?, ?)',
+        [nama, nim, kelas, prodi],
+        (err, result) => {
+            if (err) {
+                console.error(err);
+                return res.status(500).json({ message: 'Database error' });
+            }
+
+            res.status(201).json({ message: 'User created successfully' });
+        }
+    );
 });
