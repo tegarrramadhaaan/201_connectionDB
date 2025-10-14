@@ -5,7 +5,7 @@ const PORT = 3001;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.get('/mahasiswa',(req, res )=> {
+app.get('/',(req, res )=> {
     res.send('Hello World');
 });
 
